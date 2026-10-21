@@ -2,11 +2,17 @@
 import "dotenv/config";
 import express from "express";
 import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 
 // Parse incoming JSON request bodies
 app.use(express.json());
+app.use("/api/auth", authRoutes);
+
+app.get("/", (req, res) => {
+  res.send("Welcome to the BookLeaf Support Portal API");
+});
 
 // Basic health-check route
 app.get("/api/health", (req, res) => {
