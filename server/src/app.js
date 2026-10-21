@@ -3,6 +3,7 @@ import "dotenv/config";
 import express from "express";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import { protect, allowRoles } from "./middleware/authMiddleware.js";
 
 const app = express();
 
@@ -21,6 +22,25 @@ app.get("/api/health", (req, res) => {
     message: "BookLeaf Support Portal API is running",
   });
 });
+
+app.get("/api/auth/me", protect, (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+});
+
+app.get(
+  "/api/admin/test",
+  protect,
+  allowRoles("admin"),
+  (req, res) => {
+    res.status(200).json({
+      success: true,
+      message: "Admin access granted.",
+    });
+  }
+);
 
 const startServer = async () => {
   try {
