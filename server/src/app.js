@@ -4,23 +4,17 @@ import express from "express";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import { protect, allowRoles } from "./middleware/authMiddleware.js";
+import authorRoutes from "./routes/authorRoutes.js"
 
 const app = express();
 
 // Parse incoming JSON request bodies
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/author", authorRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the BookLeaf Support Portal API");
-});
-
-// Basic health-check route
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "BookLeaf Support Portal API is running",
-  });
 });
 
 app.get("/api/auth/me", protect, (req, res) => {
