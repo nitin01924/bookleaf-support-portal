@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import { protect, allowRoles } from "./middleware/authMiddleware.js";
 import authorRoutes from "./routes/authorRoutes.js"
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
 
@@ -12,6 +13,7 @@ const app = express();
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/author", authorRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the BookLeaf Support Portal API");
