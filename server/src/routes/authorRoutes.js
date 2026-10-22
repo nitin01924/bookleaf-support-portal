@@ -1,14 +1,17 @@
 import { Router } from "express";
+import {
+  getMyBooks,
+  createTicket,
+  getMyTickets,
+} from "../controllers/authorController.js";
 import { protect, allowRoles } from "../middleware/authMiddleware.js";
-import { getMyBooks } from "../controllers/authorController.js";
 
 const router = Router();
 
-router.get(
-  "/books",
-  protect,
-  allowRoles("author"),
-  getMyBooks
-);
+router.use(protect, allowRoles("author"));
+
+router.get("/books", getMyBooks);
+router.post("/tickets", createTicket);
+router.get("/tickets", getMyTickets);
 
 export default router;
