@@ -1,4 +1,5 @@
 import Ticket from "../models/Ticket.js";
+import { generateReplyDraft } from "../services/aiService.js";
 
 const categories = [
   "Royalty & Payments",
@@ -125,14 +126,12 @@ export const getAllTickets = async (req, res) => {
   }
 };
 
-
-
 export const assignTicketToMe = async (req, res) => {
   try {
     const ticket = await Ticket.findByIdAndUpdate(
       req.params.ticketId,
       { assignedAdminId: req.user.id },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!ticket) {
@@ -169,12 +168,7 @@ export const updateTicket = async (req, res) => {
     const { status, category, priority } = req.body;
     const updates = {};
 
-    const allowedStatuses = [
-      "Open",
-      "In Progress",
-      "Resolved",
-      "Closed",
-    ];
+    const allowedStatuses = ["Open", "In Progress", "Resolved", "Closed"];
 
     const allowedCategories = [
       "Royalty & Payments",
@@ -185,12 +179,7 @@ export const updateTicket = async (req, res) => {
       "General Inquiry",
     ];
 
-    const allowedPriorities = [
-      "Critical",
-      "High",
-      "Medium",
-      "Low",
-    ];
+    const allowedPriorities = ["Critical", "High", "Medium", "Low"];
 
     if (status !== undefined) {
       if (!allowedStatuses.includes(status)) {
@@ -232,7 +221,7 @@ export const updateTicket = async (req, res) => {
     const ticket = await Ticket.findByIdAndUpdate(
       req.params.ticketId,
       { $set: updates },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!ticket) {
@@ -327,6 +316,48 @@ export const addTicketMessage = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to add ticket message.",
+    });
+  }
+};
+
+export const createTicketReplyDraft = async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.ticketId).select(
+      "subject description category",
+    );
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket not found.",
+      });
+    }
+
+    const result = await generateReplyDraft(
+      ticket.subject,
+      ticket.description,
+      ticket.category,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Reply draft generated successfully.",
+      draft: result.draft,
+      source: result.source,
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ticket ID.",
+      });
+    }
+
+    console.error("Reply draft generation failed:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate reply draft.",
     });
   }
 };
