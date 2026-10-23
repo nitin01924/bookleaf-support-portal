@@ -1,4 +1,3 @@
-
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
@@ -18,12 +17,12 @@ const allowedOrigins = [
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow requests without an Origin header, such as health checks.
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      return callback(new Error("Origin not allowed by CORS"));
+      console.warn(`CORS blocked origin: ${origin}`);
+      return callback(null, false);
     },
   }),
 );
@@ -46,17 +45,12 @@ app.get("/api/auth/me", protect, (req, res) => {
   });
 });
 
-app.get(
-  "/api/admin/test",
-  protect,
-  allowRoles("admin"),
-  (req, res) => {
-    res.status(200).json({
-      success: true,
-      message: "Admin access granted.",
-    });
-  },
-);
+app.get("/api/admin/test", protect, allowRoles("admin"), (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Admin access granted.",
+  });
+});
 
 const startServer = async () => {
   try {
