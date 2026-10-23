@@ -200,8 +200,12 @@ The draft will be reviewed and edited by an admin before sending.
         `,
         maxOutputTokens: 350,
         httpOptions: {
-          timeout: 90_000,
-          retryOptions: { attempts: 1 },
+          timeout: 120_000,
+          retryOptions: {
+            attempts: 2,
+            initialDelay: 1_000,
+            maxDelay: 4_000,
+          },
         },
         ...(model === "gemini-3.8-flash"
           ? { thinkingConfig: { thinkingLevel: "LOW" } }
